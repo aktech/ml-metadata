@@ -12,12 +12,11 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 """Tests for ml_metadata.MetadataStore."""
-
+import argparse
 import collections
 import os
 import uuid
 
-from absl import flags
 from absl.testing import absltest
 from absl.testing import parameterized
 
@@ -25,24 +24,29 @@ import ml_metadata as mlmd
 from ml_metadata import errors
 from ml_metadata.proto import metadata_store_pb2
 
-FLAGS = flags.FLAGS
 
-# TODO(b/145819288) to add SSL related configurations.
-flags.DEFINE_boolean(
-    "use_grpc_backend", False,
-    "Set this to true to use gRPC instead of sqlLite backend.")
-flags.DEFINE_string(
-    "grpc_host", None,
-    "The gRPC host name to use when use_grpc_backed is set to 'True'")
-flags.DEFINE_integer(
-    "grpc_port", 0,
-    "The gRPC port number to use when use_grpc_backed is set to 'True'")
+def get_args():
+    parser = argparse.ArgumentParser(description='Test metadata store gRPC config')
+    parser.add_argument(
+      '--use_grpc_backend', action='store_true',
+      help='Set this to true to use gRPC instead of sqlLite backend.'
+    )
+    parser.add_argument(
+      '--grpc_host', type=str, default="localhost",
+      help="The gRPC host name to use when use_grpc_backed is set to 'True'"
+    )
+    parser.add_argument(
+      '--grpc_port', type=int, default=50051,
+      help="The gRPC port number to use when use_grpc_backed is set to 'True'"
+    )
+    return parser.parse_args()
 
 
 def _get_metadata_store(grpc_max_receive_message_length=None,
                         grpc_client_timeout_sec=None,
                         grpc_http2_max_ping_strikes=None):
-  if FLAGS.use_grpc_backend:
+  args = get_args()
+  if args.use_grpc_backend:
     grpc_connection_config = metadata_store_pb2.MetadataStoreClientConfig()
     if grpc_max_receive_message_length:
       (grpc_connection_config.channel_arguments.max_receive_message_length
@@ -52,12 +56,12 @@ def _get_metadata_store(grpc_max_receive_message_length=None,
     if grpc_http2_max_ping_strikes is not None:
       (grpc_connection_config.channel_arguments.http2_max_ping_strikes
       ) = grpc_http2_max_ping_strikes
-    if not FLAGS.grpc_host:
+    if not args.grpc_host:
       raise ValueError("grpc_host argument not set.")
-    grpc_connection_config.host = FLAGS.grpc_host
-    if not FLAGS.grpc_port:
+    grpc_connection_config.host = args.grpc_host
+    if not args.grpc_port:
       raise ValueError("grpc_port argument not set.")
-    grpc_connection_config.port = FLAGS.grpc_port
+    grpc_connection_config.port = args.grpc_port
     return mlmd.MetadataStore(grpc_connection_config)
 
   connection_config = metadata_store_pb2.ConnectionConfig()
@@ -128,7 +132,8 @@ class MetadataStoreTest(parameterized.TestCase):
 
   def test_connection_config_with_grpc_max_receive_message_length(self):
     # The test is irrelevant when not using grpc connection.
-    if not FLAGS.use_grpc_backend:
+    args = get_args()
+    if not args.use_grpc_backend:
       return
     # Set max_receive_message_length to 100. The returned artifact type is
     # less than 100 bytes.
@@ -141,7 +146,8 @@ class MetadataStoreTest(parameterized.TestCase):
 
   def test_connection_config_with_grpc_max_receive_message_length_errors(self):
     # The test is irrelevant when not using grpc connection.
-    if not FLAGS.use_grpc_backend:
+    args = get_args()
+    if not args.use_grpc_backend:
       return
     # Set max_receive_message_length to 1. The client should raise
     # ResourceExhaustedError as the returned artifact type is more than 1 byte.
@@ -154,7 +160,8 @@ class MetadataStoreTest(parameterized.TestCase):
 
   def test_connection_config_with_grpc_http2_max_ping_strikes(self):
     # The test is irrelevant when not using grpc connection.
-    if not FLAGS.use_grpc_backend:
+    args = get_args()
+    if not args.use_grpc_backend:
       return
     # Set grpc.http2_max_ping_strikes to 0. The request succeeds.
     artifact_type_name = self._get_test_type_name()
@@ -165,7 +172,8 @@ class MetadataStoreTest(parameterized.TestCase):
 
   def test_connection_config_with_grpc_client_timeout_sec_errors(self):
     # The test is irrelevant when not using grpc connection.
-    if not FLAGS.use_grpc_backend:
+    args = get_args()
+    if not args.use_grpc_backend:
       return
 
     # Set timeout=0 to make sure a rpc call will fail.
@@ -500,7 +508,8 @@ class MetadataStoreTest(parameterized.TestCase):
     self.assertListEqual([execution_type_1, execution_type_2], got_types)
 
   def test_get_context_types(self):
-    if FLAGS.use_grpc_backend:
+    args = get_args()
+    if args.use_grpc_backend:
       return
     store = _get_metadata_store()
     context_type_1 = _create_example_context_type(self._get_test_type_name())
