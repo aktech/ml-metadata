@@ -2626,6 +2626,3 @@ class MetadataStoreTest(parameterized.TestCase):
     with self.assertRaisesRegex(errors.InvalidArgumentError,
                                 "Found unmatched property type: foo"):
       store.put_artifacts([artifact])
-
-if __name__ == "__main__":
-  absltest.main()
