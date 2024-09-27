@@ -36,7 +36,7 @@ jobs:
         docker compose run ${DOCKER_SERVICE}
 
     - name: Upload wheel artifact for Python ${{ matrix.python-version }}
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4.4.0
       with:
         name: ml-metadata-wheel-py${{ matrix.python-version }}
         path: dist/*.whl
@@ -58,10 +58,10 @@ jobs:
       id-token: write
     steps:
       - name: Retrieve wheels
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v4.1.8
         with:
           merge-multiple: true
-          path: wheels/
+          path: wheels
 
       - name: List the build artifacts
         run: |
