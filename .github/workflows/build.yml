@@ -3,7 +3,7 @@ name: Build ml-metadata
 on:
   push:
     branches:
-      - master
+      - "*"
   pull_request:
     branches:
       - master
@@ -34,6 +34,10 @@ jobs:
         DOCKER_SERVICE=manylinux-python$(echo "$version" | sed 's/\.//')
         docker compose build ${DOCKER_SERVICE}
         docker compose run ${DOCKER_SERVICE}
+
+    - name: Test
+      run: |
+        pytest -vv
 
     - name: Upload wheel artifact for Python ${{ matrix.python-version }}
       uses: actions/upload-artifact@v4.4.0
