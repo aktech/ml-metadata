@@ -1830,10 +1830,12 @@ class MetadataStoreTest(parameterized.TestCase):
   def test_get_nodes_by_filter_query_syntax_errors(self, get_nodes_fn):
     store = _get_metadata_store(self.cli_args)
     # Verify deprecation warning is raised even for syntax errors
-    with self.assertWarns(DeprecationWarning) as warning_context:
-      with self.assertRaises(errors.InvalidArgumentError):
-        _ = get_nodes_fn(
-            store, list_options=mlmd.ListOptions(filter_query="invalid syntax"))
+    with (
+        self.assertWarns(DeprecationWarning) as warning_context,
+        self.assertRaises(errors.InvalidArgumentError),
+    ):
+      _ = get_nodes_fn(
+          store, list_options=mlmd.ListOptions(filter_query="invalid syntax"))
     # Verify the warning message mentions version 1.19.0
     self.assertIn("1.19.0", str(warning_context.warning))
 
