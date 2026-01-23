@@ -81,11 +81,11 @@ class ListOptions:
     is_asc: Specifies `order_by` is ascending or descending. If `order_by` is
       not given, the field is ignored. If `order_by` is set, then by default
       ascending order is used for performance benefit.
-    filter_query: DEPRECATED (will be removed in v1.19.0) - An optional boolean
+    filter_query: DEPRECATED (will be removed in v1.18.0) - An optional boolean
       expression in SQL syntax to specify conditions on node attributes and
       directly connected assets. This feature depends on ZetaSQL which is being
       removed from ML Metadata. Please migrate to alternative filtering approaches
-      before version 1.19.0. See
+      before version 1.18.0. See
       https://github.com/google/ml-metadata/blob/master/ml_metadata/proto/metadata_store.proto#L705-L783
       for the query capabilities and syntax.
   """
@@ -1482,13 +1482,13 @@ class MetadataStore:
       if list_options.order_by:
         request.options.order_by_field.field = list_options.order_by.value
       if list_options.filter_query:
-        # DEPRECATED: ZetaSQL-based filter_query will be removed in v1.19.0
+        # DEPRECATED: ZetaSQL-based filter_query will be removed in v1.18.0
         import warnings
         warnings.warn(
             'DEPRECATION WARNING: filter_query is deprecated and will be '
-            'removed in version 1.19.0. This feature depends on ZetaSQL '
+            'removed in version 1.18.0. This feature depends on ZetaSQL '
             'which is being removed from ML Metadata. Please migrate to '
-            'alternative filtering approaches before the 1.19.0 release.',
+            'alternative filtering approaches before the 1.18.0 release.',
             DeprecationWarning,
             stacklevel=3
         )

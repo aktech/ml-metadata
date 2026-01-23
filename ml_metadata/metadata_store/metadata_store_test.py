@@ -1814,8 +1814,8 @@ class MetadataStoreTest(parameterized.TestCase):
               filter_query=("custom_properties.p.int_value < 21 AND "
                             "name LIKE 'node_2%'")
           ))
-    # Verify the warning message mentions version 1.19.0
-    self.assertIn("1.19.0", str(warning_context.warning))
+    # Verify the warning message mentions version 1.18.0
+    self.assertIn("1.18.0", str(warning_context.warning))
     self.assertIn("filter_query", str(warning_context.warning))
 
     self.assertLen(got_nodes, 2)
@@ -1836,8 +1836,8 @@ class MetadataStoreTest(parameterized.TestCase):
     ):
       _ = get_nodes_fn(
           store, list_options=mlmd.ListOptions(filter_query="invalid syntax"))
-    # Verify the warning message mentions version 1.19.0
-    self.assertIn("1.19.0", str(warning_context.warning))
+    # Verify the warning message mentions version 1.18.0
+    self.assertIn("1.18.0", str(warning_context.warning))
 
   def test_put_contexts_get_context_by_type_and_name(self):
     # Prepare test data.
